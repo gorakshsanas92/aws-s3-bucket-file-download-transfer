@@ -1,0 +1,3 @@
+# Pyre type checker
+.pyre/
+migrations/

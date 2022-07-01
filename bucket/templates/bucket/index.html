@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-group{
+            margin-top: 7px;
+        }
+    </style>
+</head>
+  <body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4> Download File </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label> Select Bucket</label>
+                            <select name="bucket" id="bucket" class="form-control">
+                                <option selected disabled> Select Bucket </option>
+                                {% for bucket in bucket_list %}
+                                    <option value="{{ bucket }}">{{ bucket }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label> Select File</label>
+                            <select name="file" id="file" class="form-control">
+                                
+                            </select>
+                        </div>
+                        <hr>
+                        <div class="modal-footer">
+                            <button class="btn btn-success download">
+                                Download
+                            </button>
+                        </div>
+                        <br>
+                        <div class="message"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4> Copy File </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label> Select Bucket</label>
+                            <select name="bucket" id="bucket2" class="form-control">
+                                <option selected disabled> Select Bucket </option>
+                                {% for bucket in bucket_list %}
+                                    <option value="{{ bucket }}">{{ bucket }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label> Select File</label>
+                            <select name="file" id="file2" class="form-control">
+                                
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label> Target Bucket</label>
+                            <select name="bucket" id="bucket3" class="form-control">
+                                <option selected disabled> Select Bucket </option>
+                                {% for bucket in bucket_list %}
+                                    <option value="{{ bucket }}">{{ bucket }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <hr>
+                        <div class="modal-footer">
+                            <button class="btn btn-success copy">
+                                Copy
+                            </button>
+                        </div>
+                        <br>
+                        <div class="message2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+    {% csrf_token %}
+    <script>
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    </script>
+    <script>
+        $(document).ready(function(){
+            $(document).on('change', '#bucket', function(){
+                $(".files-list").empty()
+                $.ajax({
+                    url: 'get-bucket-files/'+$(this).val()
+                })
+                .done(function(data){
+                    console.log(data)
+                    $("#file option").remove()
+                    options = "<option selected disabled> Select File </option>";
+                    $.each(data.files, function(index, value){
+                        options += `<option value='${value.name}'>${value.name}</option>`;
+                    })
+
+                    $("#file").append(options);
+                })
+                .fail(function(error){
+                    console.log(error)
+                })
+            })
+
+            $(document).on('change', '#bucket2', function(){
+                $(".files-list").empty()
+                $.ajax({
+                    url: 'get-bucket-files/'+$(this).val()
+                })
+                .done(function(data){
+                    console.log(data)
+                    $("#file2 option").remove()
+                    options = "<option selected disabled> Select File </option>";
+                    $.each(data.files, function(index, value){
+                        options += `<option value='${value.name}'>${value.name}</option>`;
+                    })
+
+                    $("#file2").append(options);
+                })
+                .fail(function(error){
+                    console.log(error)
+                })
+            })
+
+            // Download file
+            $(document).on('click', '.download', function(){
+
+                $.ajax({
+                    url: 'download-bucket-file',
+                    type: "POST",
+                    data: {
+                        bucket_name: $("#bucket").val(),
+                        file_name: $("#file").val(),
+                        "csrfmiddlewaretoken": csrftoken
+                    }
+                })
+                .done(function(data){
+                    if(data.status == "success"){
+                        $(".message").append(`
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                ${data.message}
+                                <button 
+                                    type="button" 
+                                    class="btn-close" 
+                                    data-bs-dismiss="alert" 
+                                    aria-label="Close"></button>
+                            </div>
+                        `)
+                    }else{
+                        $(".message").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                ${data.message}
+                                <button 
+                                    type="button" 
+                                    class="btn-close" 
+                                    data-bs-dismiss="alert" 
+                                    aria-label="Close"></button>
+                            </div>
+                        `)
+                    }
+                })
+                .fail(function(error){
+                    console.log(error)
+                })
+            })
+
+            // Copy File
+            $(document).on('click', '.copy', function(){
+
+                $.ajax({
+                    url: 'copy-file',
+                    type: "POST",
+                    data: {
+                        "bucket_name": $("#bucket2").val(),
+                        "target_bucket_name": $("#bucket3").val(),
+                        "file_name": $("#file2").val(),
+                        "csrfmiddlewaretoken": csrftoken
+                    }
+                })
+                .done(function(data){
+                    if(data.status == "success"){
+                        $(".message").append(`
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                ${data.message}
+                                <button 
+                                    type="button" 
+                                    class="btn-close" 
+                                    data-bs-dismiss="alert" 
+                                    aria-label="Close"></button>
+                            </div>
+                        `)
+                    }else{
+                        $(".message").append(`
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                ${data.message}
+                                <button 
+                                    type="button" 
+                                    class="btn-close" 
+                                    data-bs-dismiss="alert" 
+                                    aria-label="Close"></button>
+                            </div>
+                        `)
+                    }
+                })
+                .fail(function(error){
+                    console.log(error)
+                })
+            })
+        })
+    </script>
+</body>
+</html>
