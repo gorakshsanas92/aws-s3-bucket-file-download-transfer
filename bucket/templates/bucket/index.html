@@ -9,9 +9,20 @@
         .form-group{
             margin-top: 7px;
         }
+        .pageloader {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: url('https://c.tenor.com/8ZhQShCQe9UAAAAC/loader.gif') 50% 50% no-repeat rgb(249, 249, 249);
+            opacity: .8;
+        }
     </style>
 </head>
   <body>
+    <div class="pageloader"></div>
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-6">
@@ -98,15 +109,18 @@
     </script>
     <script>
         $(document).ready(function(){
+            $(".pageloader").fadeOut("slow");
+
             $(document).on('change', '#bucket', function(){
+                $(".pageloader").fadeIn("slow");
                 $(".files-list").empty()
                 $.ajax({
                     url: 'get-bucket-files/'+$(this).val()
                 })
                 .done(function(data){
-                    console.log(data)
+                    $(".pageloader").fadeOut("slow");
                     $("#file option").remove()
-                    options = "<option selected disabled> Select File </option>";
+                    options = "<option selected disabled> Select File </option><option value='all'> All </option>";
                     $.each(data.files, function(index, value){
                         options += `<option value='${value.name}'>${value.name}</option>`;
                     })
@@ -114,19 +128,21 @@
                     $("#file").append(options);
                 })
                 .fail(function(error){
+                    $(".pageloader").fadeOut("slow");
                     console.log(error)
                 })
             })
 
             $(document).on('change', '#bucket2', function(){
+                $(".pageloader").fadeIn("slow");
                 $(".files-list").empty()
                 $.ajax({
                     url: 'get-bucket-files/'+$(this).val()
                 })
                 .done(function(data){
-                    console.log(data)
+                    $(".pageloader").fadeOut("slow");
                     $("#file2 option").remove()
-                    options = "<option selected disabled> Select File </option>";
+                    options = "<option selected disabled> Select File </option><option value='all'> All </option>";
                     $.each(data.files, function(index, value){
                         options += `<option value='${value.name}'>${value.name}</option>`;
                     })
@@ -134,13 +150,14 @@
                     $("#file2").append(options);
                 })
                 .fail(function(error){
+                    $(".pageloader").fadeOut("slow");
                     console.log(error)
                 })
             })
 
             // Download file
             $(document).on('click', '.download', function(){
-
+                $(".pageloader").fadeIn("slow");
                 $.ajax({
                     url: 'download-bucket-file',
                     type: "POST",
@@ -151,6 +168,7 @@
                     }
                 })
                 .done(function(data){
+                    $(".pageloader").fadeOut("slow");
                     if(data.status == "success"){
                         $(".message").append(`
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -176,13 +194,14 @@
                     }
                 })
                 .fail(function(error){
+                    $(".pageloader").fadeOut("slow");
                     console.log(error)
                 })
             })
 
             // Copy File
             $(document).on('click', '.copy', function(){
-
+                $(".pageloader").fadeIn("slow");
                 $.ajax({
                     url: 'copy-file',
                     type: "POST",
@@ -194,8 +213,9 @@
                     }
                 })
                 .done(function(data){
+                    $(".pageloader").fadeOut("slow");
                     if(data.status == "success"){
-                        $(".message").append(`
+                        $(".message2").append(`
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
                                 ${data.message}
                                 <button 
@@ -219,6 +239,7 @@
                     }
                 })
                 .fail(function(error){
+                    $(".pageloader").fadeOut("slow");
                     console.log(error)
                 })
             })
