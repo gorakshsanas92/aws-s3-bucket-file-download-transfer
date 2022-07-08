@@ -9,4 +9,8 @@ urlpatterns = [
     path('copy-file', views.copy_files, name='copy-file'),
 
     path('download', views.download_files, name="download"),
+
+
+    # 
+    path('export-data', views.export_data, name='export-data'),
 ]

@@ -8,6 +8,8 @@ import os
 import tqdm
 import boto3
 from botocore.exceptions import ClientError
+from common.views import connection
+from .tasks import get_records
 
 # Create your views here.
 
@@ -23,8 +25,8 @@ def bucket(request):
 def create_session():
     # stores configuration state and allows you to create service clients and resources.
     session = boto3.session.Session(
-        aws_access_key_id="aws_access_key_id", 
-        aws_secret_access_key="aws_secret_access_key"
+        aws_access_key_id="AKIATMB63BWMLIBJN57K", 
+        aws_secret_access_key="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"
     )
 
     return session
@@ -276,3 +278,14 @@ def copy_files(request):
         
         except Exception as e:
             return JsonResponse({"status": "error","message": str(e)})
+
+
+
+
+def export_data(request):
+    task = get_records.delay()
+    
+    return render(request, 'bucket/export_data.html')
+    # cursor.execute('SELECT to_jsonb(json_agg(CRICKETERS)) FROM CRICKETERS')
+    # result = cursor.fetchall()
+    # print(result[0][0])
