@@ -77,7 +77,9 @@ def get_records(flag=True, start=0, end=5):
                 target_cursor.commit()
 
                 get_records(flag=True, start=start+end, end=5)
+
             else:
+                
                 insert_last_inserted_id(cursor2, target_cursor)
                 get_records(flag=False)
 
